@@ -25,42 +25,34 @@
       width: 100%;
       height: 160px;
       display: flex;
-      justify-content: flex-start; /* contenido alineado a la izquierda */
       align-items: center;
-
-      /* Fondo imagen responsivo */
-      background-image: url("img/fondo de itartaros.jpg");
+      justify-content: flex-start; /* Caja hacia la izquierda */
+      background: url("img/fondo de itartaros.jpg") no-repeat center;
       background-size: cover;
-      background-position: right center; /* conservamos la parte derecha visible */
-      background-repeat: no-repeat;
-
-      overflow: hidden;
     }
 
     /* ===== CAJA DE TÍTULO ===== */
     .title-box {
-      position: absolute;
-      left: 16px;        /* margen izquierdo */
-      top: 50%;          
-      transform: translateY(-50%);
+      position: relative;
       z-index: 2;
       background: rgba(255, 255, 255, 0.92);
-      padding: 12px 16px;
+      padding: 10px 15px;
       border-radius: 12px;
       text-align: left;
-      max-width: 70%;    /* evita que invada la parte derecha */
+      margin-left: 20px;   /* margen izquierdo */
+      max-width: 240px;    /* más estrecho */
     }
 
     .title-box h1 {
       font-family: "Cinzel", serif;
-      font-size: 1.6rem;
+      font-size: 1.5rem;
       color: #2c2c2c;
       margin: 0;
     }
 
     .title-box p {
       font-family: "Cinzel", serif;
-      font-size: 1rem;
+      font-size: 0.9rem;
       color: #a32a29;
       margin: 6px 0 0;
     }
@@ -70,7 +62,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 0.8rem;
+      gap: 1rem;
       margin: 1rem 0;
       flex-wrap: wrap;
     }
@@ -95,7 +87,6 @@
     /* ===== PDF VIEWER ===== */
     #pdf-viewer {
       width: 100%;
-      height: auto;
       display: flex;
       justify-content: center;
       align-items: flex-start;
@@ -114,42 +105,41 @@
       background: white;
     }
 
+    /* ===== FOOTER ===== */
+    footer {
+      margin-top: 2rem;
+      padding: 1rem;
+      background: #222;
+      color: #fff;
+      text-align: center;
+      width: 100%;
+    }
+
     /* ===== RESPONSIVIDAD ===== */
     @media (max-width: 768px) {
-      header {
-        height: 140px; /* header más compacto en móviles */
-        background-position: right center; /* mantenemos foco a la derecha */
-      }
+      header { height: 140px; background-position: right center; }
 
-      .title-box {
-        left: 12px;  
-        padding: 10px 14px;
-        max-width: 80%; /* un poco más de ancho disponible en móviles */
+      .title-box { 
+        padding: 8px 12px; 
+        margin-left: 12px; 
+        max-width: 200px; 
       }
-
       .title-box h1 { font-size: 1.2rem; }
-      .title-box p { font-size: 0.85rem; text-transform: uppercase; }
+      .title-box p { font-size: 0.8rem; }
 
       #controls {
+        flex-direction: row;
         gap: 0.5rem;
         justify-content: center;
-        flex-wrap: nowrap;
       }
 
       .btn {
         width: 120px;
         font-size: 0.8rem;
         padding: 0.4rem 0;
-        text-align: center;
-        white-space: nowrap;
       }
 
-      #page-info {
-        font-size: 0.85rem;
-        width: auto;
-        margin: 0 0.5rem;
-      }
-
+      #page-info { font-size: 0.85rem; }
       canvas { max-width: 100%; }
     }
   </style>
@@ -227,6 +217,11 @@
 
     window.addEventListener("resize", () => renderPage(currentPage));
   </script>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2025 ITARTAROS - Todos los derechos reservados</p>
+  </footer>
 
 </body>
 </html>
