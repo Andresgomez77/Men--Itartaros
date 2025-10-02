@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>ITARTAROS — Carta</title>
 
-  <!-- Icono opcional -->
+  <!-- Favicon -->
   <link rel="icon" href="Mesa de trabajo 1.png" type="image/png">
 
   <!-- Fuentes -->
@@ -36,42 +36,31 @@
       align-items:center;
     }
 
-    /* HEADER: visible y con buena altura */
+    /* HEADER: visible */
     header{
       width:100%;
-      min-height:200px;           /* evita que se esconda */
-      max-height:40vh;
+      min-height:160px;           /* suficiente en móvil */
       background: url("img/fondo de itartaros.jpg") center/cover no-repeat;
       position:relative;
       display:flex;
       align-items:center;
       justify-content:center;
-      padding: 18px;
-      box-shadow: inset 0 -28px 48px rgba(0,0,0,0.18);
-      margin-bottom: 18px;        /* separación clara hacia el contenido */
+      padding: 14px;
+      box-shadow: inset 0 -20px 36px rgba(0,0,0,0.14);
+      margin-bottom: 14px;
     }
 
-    header .sr-only{ /* por si quieres añadir texto accesible dentro del header */
-      position:absolute;
-      left:-9999px;
-      top:auto;
-      width:1px;
-      height:1px;
-      overflow:hidden;
-    }
-
-    /* CONTENEDOR PRINCIPAL */
+    /* CONTENEDOR */
     .container{
       width:100%;
       max-width:var(--max-width);
-      padding: 0 var(--gutter);
+      padding: 0 16px;
       display:flex;
       flex-direction:column;
       align-items:center;
-      gap:14px;
+      gap:12px;
     }
 
-    /* BLOQUE INTEGRADO: caja + barra (misma unidad visual) */
     .pdf-header {
       width:100%;
       display:flex;
@@ -81,39 +70,44 @@
       margin-top: 0;
     }
 
-    /* CAJA DE TEXTO (estilizada) */
+    /* ==== RESTAURADO: diseño original de la caja de texto ==== */
     .title-box{
       width:100%;
       max-width:720px;
-      padding:14px 18px;
+      padding:12px 14px;
       border-radius: var(--radius);
       background: linear-gradient(180deg, rgba(255,255,255,0.99), var(--card-bg));
       box-shadow: var(--shadow-lg);
       border-left: 6px solid var(--accent);
       text-align:center;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:6px;
     }
 
     .title-box h1{
       margin:0;
       font-family: "Cinzel", serif;
-      font-size:1.25rem;
+      font-size:1.05rem;
       color:#121212;
       line-height:1.05;
+      font-weight:700;
     }
     .title-box p{
-      margin:6px 0 0;
-      font-size:0.95rem;
+      margin:0;
+      font-size:0.9rem;
       color:#5b5b5b;
       font-weight:600;
     }
 
-    /* BARRA DE CONTROLES (misma unidad) */
+    /* CONTROLES - layout corregido: prev | page-info | next */
     #controls {
       width:100%;
       max-width:720px;
       display:flex;
       align-items:center;
-      justify-content:center;
+      justify-content:space-between; /* coloca un botón a la izquierda y el otro a la derecha */
       gap:10px;
       padding:8px;
       background: rgba(255,255,255,0.96);
@@ -137,7 +131,15 @@
     .btn-prev { color: white; background: #009246; }
     .btn-next { color: white; background: #ce2b37; }
 
-    #page-info { font-weight:700; color:#333; padding:0 8px; min-width:120px; text-align:center; }
+    /* Indicador centrado */
+    #page-info {
+      margin: 0 12px;
+      flex: 1;
+      text-align: center;
+      font-weight:700;
+      color:#333;
+      min-width: 100px;
+    }
 
     /* VISOR PDF */
     #pdf-viewer {
@@ -145,7 +147,7 @@
       display:flex;
       justify-content:center;
       margin-top: 6px;
-      padding: 18px 0 28px;
+      padding: 16px 0 24px;
       background: transparent;
     }
 
@@ -158,72 +160,101 @@
       background:#fff;
     }
 
+    /* MOBILE-FIRST ADJUSTMENTS: en móvil los botones se apilan (indicador arriba) */
+    @media (max-width:600px) {
+      header{ min-height:140px; padding:12px; margin-bottom:12px; }
+
+      .title-box{
+        padding:10px 12px;
+        border-left-width:4px;
+      }
+      .title-box h1{ font-size:1rem; }
+      .title-box p{ font-size:0.85rem; }
+
+      /* Controles móviles: apilados y táctiles */
+      #controls{
+        display:flex;
+        flex-direction:column; /* stack */
+        gap:8px;
+        padding:10px;
+        align-items: stretch;
+      }
+      .btn{
+        width:100%;
+        min-width: unset;
+        padding:12px 14px;
+        border-radius:12px;
+        font-size:1rem;
+      }
+      /* indicador arriba, ocupar toda la línea */
+      #page-info{
+        order: -1;
+        width:100%;
+        text-align:center;
+        background: transparent;
+        padding:6px 0;
+        font-size:0.95rem;
+        min-width: unset;
+      }
+    }
+
+    /* tablet / small desktop tweaks */
+    @media (min-width:601px) and (max-width:920px){
+      header{ min-height:150px; }
+      .title-box{ max-width:92%; padding:12px 14px; }
+      #controls{ max-width:92%; gap:8px; }
+      .btn{ min-width:110px; padding:10px 12px; }
+      #page-info{ min-width:110px; }
+    }
+
     /* FOOTER */
     footer{
-      margin-top: 18px;
+      margin-top: 12px;
       padding: 12px;
       background: #111;
       color: #fff;
       text-align:center;
       width:100%;
-    }
-
-    /* RESPONSIVE */
-    @media (max-width:920px){
-      header{ min-height:160px }
-      .title-box{ max-width: 92%; padding:12px }
-      #controls{ max-width:92% }
-    }
-    @media (max-width:560px){
-      header{ min-height:130px }
-      .container{ padding:0 12px }
-      .title-box{ padding:10px }
-      .title-box h1{ font-size:1rem }
-      #controls{ padding:6px; gap:6px; flex-wrap:wrap }
-      .btn{ padding:8px 10px; font-size:0.85rem }
-      #page-info{ min-width:unset }
+      margin-bottom:24px;
     }
   </style>
 </head>
 <body>
 
   <!-- HEADER visible -->
-  <header role="banner" aria-label="Encabezado ITARTAROS">
-    <span class="sr-only">ITARTAROS — Restaurante</span>
-  </header>
+  <header role="banner" aria-label="Encabezado ITARTAROS"></header>
 
-  <!-- CONTENIDO -->
+  <!-- CONTENEDOR -->
   <div class="container">
 
-    <!-- Título y controles integrados -->
     <div class="pdf-header" role="region" aria-label="Encabezado del visor de la carta">
 
-      <!-- Caja de texto (diseñada) -->
+      <!-- Caja de texto - diseño preservado -->
       <div class="title-box" role="group" aria-label="Información de la carta">
         <h1>Menú Restaurante ITARTAROS</h1>
         <p>Disfruta nuestra selección especial de entradas, platos fuertes, bebidas y postres</p>
       </div>
 
-      <!-- Controls (misma unidad visual) -->
+      <!-- Barra de controles - ahora: prev | indicador centrado | next -->
       <div id="controls" role="toolbar" aria-label="Controles del visor">
         <button id="prev" class="btn btn-prev" aria-label="Página anterior">⬅ Página anterior</button>
+
         <span id="page-info" aria-live="polite">Página 1 de ?</span>
+
         <button id="next" class="btn btn-next" aria-label="Página siguiente">Página siguiente ➡</button>
       </div>
-
     </div>
 
-    <!-- Visor PDF -->
+    <!-- VISOR -->
     <div id="pdf-viewer" role="main" aria-label="Visor del PDF"></div>
 
   </div>
 
-  <!-- FOOTER -->
   <footer>
     <p>© 2025 ITARTAROS — Todos los derechos reservados</p>
   </footer>
 
-  <!-- pdf.js (CDN) y lógica -->
+  <!-- pdf.js (CDN) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.min.js"></script>
   <script>
     if (!window['pdfjsLib']) {
@@ -244,13 +275,12 @@
       let pdfDoc = null;
       let currentPage = 1;
 
-      // Render de página con escalado responsivo
       function renderPage(num) {
         pdfDoc.getPage(num).then(function(page) {
           const containerWidth = Math.min(document.querySelector('.container').clientWidth, 960);
-          const isMobile = window.innerWidth <= 560;
+          const isMobile = window.innerWidth <= 600;
           const viewportUnscaled = page.getViewport({ scale: 1 });
-          const desiredWidth = Math.min(containerWidth * (isMobile ? 0.92 : 0.96), 900);
+          const desiredWidth = Math.min(containerWidth * (isMobile ? 0.96 : 0.96), 900);
           const scale = (desiredWidth / viewportUnscaled.width);
           const viewport = page.getViewport({ scale });
 
@@ -283,7 +313,6 @@
         renderPage(currentPage);
       });
 
-      // Cargar documento
       pdfjsLib.getDocument(url).promise.then(function(pdf) {
         pdfDoc = pdf;
         renderPage(currentPage);
@@ -298,7 +327,7 @@
         pageInfo.textContent = "Carta no disponible";
       });
 
-      // Re-render al redimensionar (debounce simple)
+      // Re-render al redimensionar (debounce)
       let rTimer;
       window.addEventListener("resize", () => {
         clearTimeout(rTimer);
@@ -310,3 +339,4 @@
   </script>
 </body>
 </html>
+
