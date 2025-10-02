@@ -39,7 +39,8 @@
     /* HEADER: visible */
     header{
       width:100%;
-      min-height:160px;           /* suficiente en móvil */
+      min-height:160px;
+      max-height:40vh;
       background: url("img/fondo de itartaros.jpg") center/cover no-repeat;
       position:relative;
       display:flex;
@@ -70,7 +71,7 @@
       margin-top: 0;
     }
 
-    /* ==== RESTAURADO: diseño original de la caja de texto ==== */
+    /* ==== DISEÑO PRESERVADO: title-box ==== */
     .title-box{
       width:100%;
       max-width:720px;
@@ -101,13 +102,13 @@
       font-weight:600;
     }
 
-    /* CONTROLES - layout corregido: prev | page-info | next */
+    /* CONTROLES - LAYOUT: prev | page-info | next (siempre en línea) */
     #controls {
       width:100%;
       max-width:720px;
       display:flex;
       align-items:center;
-      justify-content:space-between; /* coloca un botón a la izquierda y el otro a la derecha */
+      justify-content:space-between; /* prev a la izquierda, next a la derecha */
       gap:10px;
       padding:8px;
       background: rgba(255,255,255,0.96);
@@ -116,7 +117,7 @@
     }
 
     .btn {
-      padding: 0.5rem 0.9rem;
+      padding: 0.6rem 0.9rem;
       border: none;
       border-radius: 10px;
       font-size: 0.95rem;
@@ -125,6 +126,7 @@
       transition: transform .12s ease;
       background: white;
       box-shadow: 0 6px 14px rgba(0,0,0,0.06);
+      min-width: 120px;
     }
     .btn:active{ transform: translateY(1px) }
 
@@ -160,7 +162,7 @@
       background:#fff;
     }
 
-    /* MOBILE-FIRST ADJUSTMENTS: en móvil los botones se apilan (indicador arriba) */
+    /* MOBILE ADJUSTMENTS: preserve same inline layout (buttons sides) but make touch-friendly */
     @media (max-width:600px) {
       header{ min-height:140px; padding:12px; margin-bottom:12px; }
 
@@ -171,31 +173,18 @@
       .title-box h1{ font-size:1rem; }
       .title-box p{ font-size:0.85rem; }
 
-      /* Controles móviles: apilados y táctiles */
-      #controls{
-        display:flex;
-        flex-direction:column; /* stack */
-        gap:8px;
-        padding:10px;
-        align-items: stretch;
-      }
+      /* Keep buttons on left/right of centered text:
+         reduce min-width of buttons so they fit on small screens,
+         page-info stays centered via flex:1 */
       .btn{
-        width:100%;
-        min-width: unset;
-        padding:12px 14px;
-        border-radius:12px;
-        font-size:1rem;
+        min-width: 80px;
+        padding: 10px 12px;
+        font-size: 0.98rem;
+        border-radius: 10px;
       }
-      /* indicador arriba, ocupar toda la línea */
-      #page-info{
-        order: -1;
-        width:100%;
-        text-align:center;
-        background: transparent;
-        padding:6px 0;
-        font-size:0.95rem;
-        min-width: unset;
-      }
+
+      #controls{ gap:8px; padding:10px; }
+      #page-info{ font-size:0.95rem; }
     }
 
     /* tablet / small desktop tweaks */
@@ -235,7 +224,7 @@
         <p>Disfruta nuestra selección especial de entradas, platos fuertes, bebidas y postres</p>
       </div>
 
-      <!-- Barra de controles - ahora: prev | indicador centrado | next -->
+      <!-- Barra de controles - prev (izq) | page-info (centro) | next (der) -->
       <div id="controls" role="toolbar" aria-label="Controles del visor">
         <button id="prev" class="btn btn-prev" aria-label="Página anterior">⬅ Página anterior</button>
 
@@ -275,6 +264,16 @@
       let pdfDoc = null;
       let currentPage = 1;
 
+      // habilita/deshabilita botones según página
+      function updateButtons() {
+        if (!pdfDoc) { prevBtn.disabled = nextBtn.disabled = true; return; }
+        prevBtn.disabled = currentPage <= 1;
+        nextBtn.disabled = currentPage >= pdfDoc.numPages;
+        prevBtn.style.opacity = prevBtn.disabled ? 0.6 : 1;
+        nextBtn.style.opacity = nextBtn.disabled ? 0.6 : 1;
+      }
+
+      // Render de página con escalado responsivo
       function renderPage(num) {
         pdfDoc.getPage(num).then(function(page) {
           const containerWidth = Math.min(document.querySelector('.container').clientWidth, 960);
@@ -292,10 +291,11 @@
           canvas.width = viewport.width;
           viewer.appendChild(canvas);
 
-          const renderContext = { canvasContext: context, viewport: viewport };
-          page.render(renderContext);
+          // Render (devuelve un objeto con .promise que podemos usar si queremos)
+          page.render({ canvasContext: context, viewport: viewport });
 
           pageInfo.textContent = `Página ${num} de ${pdfDoc.numPages}`;
+          updateButtons();
         }).catch(err => {
           console.error("Error renderizando página:", err);
           pageInfo.textContent = "Error mostrando la página";
@@ -313,6 +313,13 @@
         renderPage(currentPage);
       });
 
+      // Soporte flechas del teclado (opcional)
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') prevBtn.click();
+        if (e.key === 'ArrowRight') nextBtn.click();
+      });
+
+      // Cargar documento
       pdfjsLib.getDocument(url).promise.then(function(pdf) {
         pdfDoc = pdf;
         renderPage(currentPage);
@@ -325,9 +332,10 @@
         errEl.style.color = "#a32a29";
         document.getElementById('pdf-viewer').appendChild(errEl);
         pageInfo.textContent = "Carta no disponible";
+        updateButtons();
       });
 
-      // Re-render al redimensionar (debounce)
+      // Re-render al redimensionar (debounce simple)
       let rTimer;
       window.addEventListener("resize", () => {
         clearTimeout(rTimer);
@@ -339,4 +347,3 @@
   </script>
 </body>
 </html>
-
