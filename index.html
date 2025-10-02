@@ -1,227 +1,312 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" href="Mesa de trabajo 1.png" type="image/png">
-  <title>ITARTAROS</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ITARTAROS — Carta</title>
 
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
+  <!-- Icono opcional -->
+  <link rel="icon" href="Mesa de trabajo 1.png" type="image/png">
+
+  <!-- Fuentes -->
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f7f7f7;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+    :root{
+      --max-width:1100px;
+      --accent: #a32a29;
+      --bg: #f7f7f7;
+      --card-bg: rgba(255,255,255,0.95);
+      --shadow-lg: 0 12px 30px rgba(10,10,10,0.12);
+      --radius: 12px;
+      --gutter: 18px;
     }
 
-    /* ===== HEADER ===== */
-    header {
-      position: relative;
-      width: 100%;
-      height: 160px;
-      display: flex;
-      align-items: center;
-      justify-content: flex-start; /* Caja hacia la izquierda */
-      background: url("img/fondo de itartaros.jpg") no-repeat center;
-      background-size: cover;
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+      background: var(--bg);
+      color:#222;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
     }
 
-    /* ===== CAJA DE TÍTULO ===== */
-    .title-box {
-      position: relative;
-      z-index: 2;
-      background: rgba(255, 255, 255, 0.92);
-      padding: 10px 15px;
-      border-radius: 12px;
-      text-align: left;
-      margin-left: 20px;   /* margen izquierdo */
-      max-width: 240px;    /* más estrecho */
+    /* HEADER: visible y con buena altura */
+    header{
+      width:100%;
+      min-height:200px;           /* evita que se esconda */
+      max-height:40vh;
+      background: url("img/fondo de itartaros.jpg") center/cover no-repeat;
+      position:relative;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 18px;
+      box-shadow: inset 0 -28px 48px rgba(0,0,0,0.18);
+      margin-bottom: 18px;        /* separación clara hacia el contenido */
     }
 
-    .title-box h1 {
+    header .sr-only{ /* por si quieres añadir texto accesible dentro del header */
+      position:absolute;
+      left:-9999px;
+      top:auto;
+      width:1px;
+      height:1px;
+      overflow:hidden;
+    }
+
+    /* CONTENEDOR PRINCIPAL */
+    .container{
+      width:100%;
+      max-width:var(--max-width);
+      padding: 0 var(--gutter);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:14px;
+    }
+
+    /* BLOQUE INTEGRADO: caja + barra (misma unidad visual) */
+    .pdf-header {
+      width:100%;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:10px;
+      margin-top: 0;
+    }
+
+    /* CAJA DE TEXTO (estilizada) */
+    .title-box{
+      width:100%;
+      max-width:720px;
+      padding:14px 18px;
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,0.99), var(--card-bg));
+      box-shadow: var(--shadow-lg);
+      border-left: 6px solid var(--accent);
+      text-align:center;
+    }
+
+    .title-box h1{
+      margin:0;
       font-family: "Cinzel", serif;
-      font-size: 1.5rem;
-      color: #2c2c2c;
-      margin: 0;
+      font-size:1.25rem;
+      color:#121212;
+      line-height:1.05;
+    }
+    .title-box p{
+      margin:6px 0 0;
+      font-size:0.95rem;
+      color:#5b5b5b;
+      font-weight:600;
     }
 
-    .title-box p {
-      font-family: "Cinzel", serif;
-      font-size: 0.9rem;
-      color: #a32a29;
-      margin: 6px 0 0;
-    }
-
-    /* ===== CONTROLES ===== */
+    /* BARRA DE CONTROLES (misma unidad) */
     #controls {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 1rem;
-      margin: 1rem 0;
-      flex-wrap: wrap;
+      width:100%;
+      max-width:720px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      padding:8px;
+      background: rgba(255,255,255,0.96);
+      border-radius:10px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.04);
     }
 
     .btn {
-      padding: 0.6rem 1rem;
+      padding: 0.5rem 0.9rem;
       border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-weight: bold;
-      cursor: pointer;
-      transition: 0.3s ease;
-    }
-
-    .btn-prev { background-color: #009246; color: white; }
-    .btn-prev:hover { background-color: #006f33; }
-    .btn-next { background-color: #ce2b37; color: white; }
-    .btn-next:hover { background-color: #a8232a; }
-
-    #page-info { font-weight: bold; color: #333; }
-
-    /* ===== PDF VIEWER ===== */
-    #pdf-viewer {
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      overflow-y: auto;
-      background: #e0e0e0;
-      padding: 1rem 0;
-    }
-
-    canvas {
-      display: block;
-      margin: auto;
-      max-width: 95%;
-      height: auto;
-      box-shadow: 0 0 6px rgba(0,0,0,0.3);
-      border-radius: 6px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight:700;
+      cursor:pointer;
+      transition: transform .12s ease;
       background: white;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.06);
+    }
+    .btn:active{ transform: translateY(1px) }
+
+    .btn-prev { color: white; background: #009246; }
+    .btn-next { color: white; background: #ce2b37; }
+
+    #page-info { font-weight:700; color:#333; padding:0 8px; min-width:120px; text-align:center; }
+
+    /* VISOR PDF */
+    #pdf-viewer {
+      width:100%;
+      display:flex;
+      justify-content:center;
+      margin-top: 6px;
+      padding: 18px 0 28px;
+      background: transparent;
     }
 
-    /* ===== FOOTER ===== */
-    footer {
-      margin-top: 2rem;
-      padding: 1rem;
-      background: #222;
+    canvas{
+      display:block;
+      max-width:95%;
+      height:auto;
+      border-radius:8px;
+      box-shadow:0 12px 30px rgba(10,10,10,0.08);
+      background:#fff;
+    }
+
+    /* FOOTER */
+    footer{
+      margin-top: 18px;
+      padding: 12px;
+      background: #111;
       color: #fff;
-      text-align: center;
-      width: 100%;
+      text-align:center;
+      width:100%;
     }
 
-    /* ===== RESPONSIVIDAD ===== */
-    @media (max-width: 768px) {
-      header { height: 140px; background-position: right center; }
-
-      .title-box { 
-        padding: 8px 12px; 
-        margin-left: 12px; 
-        max-width: 200px; 
-      }
-      .title-box h1 { font-size: 1.2rem; }
-      .title-box p { font-size: 0.8rem; }
-
-      #controls {
-        flex-direction: row;
-        gap: 0.5rem;
-        justify-content: center;
-      }
-
-      .btn {
-        width: 120px;
-        font-size: 0.8rem;
-        padding: 0.4rem 0;
-      }
-
-      #page-info { font-size: 0.85rem; }
-      canvas { max-width: 100%; }
+    /* RESPONSIVE */
+    @media (max-width:920px){
+      header{ min-height:160px }
+      .title-box{ max-width: 92%; padding:12px }
+      #controls{ max-width:92% }
+    }
+    @media (max-width:560px){
+      header{ min-height:130px }
+      .container{ padding:0 12px }
+      .title-box{ padding:10px }
+      .title-box h1{ font-size:1rem }
+      #controls{ padding:6px; gap:6px; flex-wrap:wrap }
+      .btn{ padding:8px 10px; font-size:0.85rem }
+      #page-info{ min-width:unset }
     }
   </style>
 </head>
 <body>
 
-  <!-- HEADER -->
-  <header>
-    <div class="title-box">
-      <h1>Experiencia ITARTAROS</h1>
-      <p>NUESTRA CARTA</p>
-    </div>
+  <!-- HEADER visible -->
+  <header role="banner" aria-label="Encabezado ITARTAROS">
+    <span class="sr-only">ITARTAROS — Restaurante</span>
   </header>
 
-  <!-- Controles -->
-  <div id="controls">
-    <button id="prev" class="btn btn-prev">⬅ Página anterior</button>
-    <span id="page-info">Página 1 de ?</span>
-    <button id="next" class="btn btn-next">Página siguiente ➡</button>
+  <!-- CONTENIDO -->
+  <div class="container">
+
+    <!-- Título y controles integrados -->
+    <div class="pdf-header" role="region" aria-label="Encabezado del visor de la carta">
+
+      <!-- Caja de texto (diseñada) -->
+      <div class="title-box" role="group" aria-label="Información de la carta">
+        <h1>Menú Restaurante ITARTAROS</h1>
+        <p>Disfruta nuestra selección especial de entradas, platos fuertes, bebidas y postres</p>
+      </div>
+
+      <!-- Controls (misma unidad visual) -->
+      <div id="controls" role="toolbar" aria-label="Controles del visor">
+        <button id="prev" class="btn btn-prev" aria-label="Página anterior">⬅ Página anterior</button>
+        <span id="page-info" aria-live="polite">Página 1 de ?</span>
+        <button id="next" class="btn btn-next" aria-label="Página siguiente">Página siguiente ➡</button>
+      </div>
+
+    </div>
+
+    <!-- Visor PDF -->
+    <div id="pdf-viewer" role="main" aria-label="Visor del PDF"></div>
+
   </div>
-
-  <!-- PDF Viewer -->
-  <div id="pdf-viewer"></div>
-
-  <!-- PDF.js -->
-  <script type="module">
-    import * as pdfjsLib from "./pdfjs/pdf.mjs";
-    pdfjsLib.GlobalWorkerOptions.workerSrc = "./pdfjs/pdf.worker.mjs";
-
-    const url = "Cartas Final 2025 itartaros 122025 -9.pdf";
-    const viewer = document.getElementById("pdf-viewer");
-    const pageInfo = document.getElementById("page-info");
-    const prevBtn = document.getElementById("prev");
-    const nextBtn = document.getElementById("next");
-
-    let pdfDoc = null;
-    let currentPage = 1;
-
-    function renderPage(num) {
-      pdfDoc.getPage(num).then(function(page) {
-        const isMobile = window.innerWidth <= 768;
-        const scale = isMobile ? 0.9 : 1.3;
-        const viewport = page.getViewport({ scale });
-
-        viewer.innerHTML = "";
-        const canvas = document.createElement("canvas");
-        const context = canvas.getContext("2d");
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-        viewer.appendChild(canvas);
-
-        const renderContext = { canvasContext: context, viewport: viewport };
-        page.render(renderContext);
-
-        pageInfo.textContent = `Página ${num} de ${pdfDoc.numPages}`;
-      });
-    }
-
-    prevBtn.addEventListener("click", () => {
-      if (currentPage <= 1) return;
-      currentPage--;
-      renderPage(currentPage);
-    });
-
-    nextBtn.addEventListener("click", () => {
-      if (currentPage >= pdfDoc.numPages) return;
-      currentPage++;
-      renderPage(currentPage);
-    });
-
-    pdfjsLib.getDocument(url).promise.then(function(pdf) {
-      pdfDoc = pdf;
-      renderPage(currentPage);
-    });
-
-    window.addEventListener("resize", () => renderPage(currentPage));
-  </script>
 
   <!-- FOOTER -->
   <footer>
-    <p>© 2025 ITARTAROS - Todos los derechos reservados</p>
+    <p>© 2025 ITARTAROS — Todos los derechos reservados</p>
   </footer>
 
+  <!-- pdf.js (CDN) y lógica -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.min.js"></script>
+  <script>
+    if (!window['pdfjsLib']) {
+      console.error("pdf.js no se cargó. Verifica conexión a CDN.");
+      document.getElementById('pdf-viewer').innerText = "Error: no se pudo cargar el visor PDF (pdf.js).";
+    } else {
+      // RUTA EXACTA DEL PDF
+      const url = "Cartas Final 2025 itartaros 122025 -9.pdf";
+
+      // Worker (CDN)
+      pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js";
+
+      const viewer = document.getElementById("pdf-viewer");
+      const pageInfo = document.getElementById("page-info");
+      const prevBtn = document.getElementById("prev");
+      const nextBtn = document.getElementById("next");
+
+      let pdfDoc = null;
+      let currentPage = 1;
+
+      // Render de página con escalado responsivo
+      function renderPage(num) {
+        pdfDoc.getPage(num).then(function(page) {
+          const containerWidth = Math.min(document.querySelector('.container').clientWidth, 960);
+          const isMobile = window.innerWidth <= 560;
+          const viewportUnscaled = page.getViewport({ scale: 1 });
+          const desiredWidth = Math.min(containerWidth * (isMobile ? 0.92 : 0.96), 900);
+          const scale = (desiredWidth / viewportUnscaled.width);
+          const viewport = page.getViewport({ scale });
+
+          viewer.innerHTML = "";
+          const canvas = document.createElement("canvas");
+          canvas.setAttribute("aria-label", "Página del menú");
+          const context = canvas.getContext("2d");
+          canvas.height = viewport.height;
+          canvas.width = viewport.width;
+          viewer.appendChild(canvas);
+
+          const renderContext = { canvasContext: context, viewport: viewport };
+          page.render(renderContext);
+
+          pageInfo.textContent = `Página ${num} de ${pdfDoc.numPages}`;
+        }).catch(err => {
+          console.error("Error renderizando página:", err);
+          pageInfo.textContent = "Error mostrando la página";
+        });
+      }
+
+      prevBtn.addEventListener("click", () => {
+        if (!pdfDoc || currentPage <= 1) return;
+        currentPage--;
+        renderPage(currentPage);
+      });
+      nextBtn.addEventListener("click", () => {
+        if (!pdfDoc || currentPage >= pdfDoc.numPages) return;
+        currentPage++;
+        renderPage(currentPage);
+      });
+
+      // Cargar documento
+      pdfjsLib.getDocument(url).promise.then(function(pdf) {
+        pdfDoc = pdf;
+        renderPage(currentPage);
+      }).catch(err => {
+        console.error("No se pudo cargar el PDF:", err);
+        const errEl = document.createElement('div');
+        errEl.textContent = "No se pudo cargar la carta. Verifica la ruta del PDF.";
+        errEl.style.padding = "18px";
+        errEl.style.textAlign = "center";
+        errEl.style.color = "#a32a29";
+        document.getElementById('pdf-viewer').appendChild(errEl);
+        pageInfo.textContent = "Carta no disponible";
+      });
+
+      // Re-render al redimensionar (debounce simple)
+      let rTimer;
+      window.addEventListener("resize", () => {
+        clearTimeout(rTimer);
+        rTimer = setTimeout(() => {
+          if (pdfDoc) renderPage(currentPage);
+        }, 150);
+      });
+    }
+  </script>
 </body>
 </html>
