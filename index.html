@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ITARTAROS — Carta</title>
+  <title>ITARTAROS — Carta (Alta Calidad)</title>
 
   <!-- Favicon -->
   <link rel="icon" href="Mesa de trabajo 1.png" type="image/png">
@@ -39,14 +39,14 @@
     /* HEADER: visible */
     header{
       width:100%;
-      min-height:160px;
+      min-height:140px;
       max-height:40vh;
       background: url("img/fondo de itartaros.jpg") center/cover no-repeat;
       position:relative;
       display:flex;
       align-items:center;
       justify-content:center;
-      padding: 14px;
+      padding: 12px;
       box-shadow: inset 0 -20px 36px rgba(0,0,0,0.14);
       margin-bottom: 14px;
     }
@@ -71,7 +71,7 @@
       margin-top: 0;
     }
 
-    /* ==== DISEÑO PRESERVADO: title-box ==== */
+    /* ==== PRESERVADO: diseño de la caja de texto ==== */
     .title-box{
       width:100%;
       max-width:720px;
@@ -102,13 +102,13 @@
       font-weight:600;
     }
 
-    /* CONTROLES - LAYOUT: prev | page-info | next (siempre en línea) */
+    /* CONTROLES - prev | page-info | next */
     #controls {
       width:100%;
       max-width:720px;
       display:flex;
       align-items:center;
-      justify-content:space-between; /* prev a la izquierda, next a la derecha */
+      justify-content:space-between;
       gap:10px;
       padding:8px;
       background: rgba(255,255,255,0.96);
@@ -133,7 +133,6 @@
     .btn-prev { color: white; background: #009246; }
     .btn-next { color: white; background: #ce2b37; }
 
-    /* Indicador centrado */
     #page-info {
       margin: 0 12px;
       flex: 1;
@@ -143,7 +142,7 @@
       min-width: 100px;
     }
 
-    /* VISOR PDF */
+    /* VISOR PDF (canvas) */
     #pdf-viewer {
       width:100%;
       display:flex;
@@ -160,11 +159,13 @@
       border-radius:8px;
       box-shadow:0 12px 30px rgba(10,10,10,0.08);
       background:#fff;
+      width:100%;
+      /* el tamaño visual lo controla CSS; la resolución real la controla canvas.width/height */
     }
 
-    /* MOBILE ADJUSTMENTS: preserve same inline layout (buttons sides) but make touch-friendly */
+    /* MOBILE: botones táctiles a los laterales, texto centrado */
     @media (max-width:600px) {
-      header{ min-height:140px; padding:12px; margin-bottom:12px; }
+      header{ min-height:120px; padding:10px; margin-bottom:12px; }
 
       .title-box{
         padding:10px 12px;
@@ -173,9 +174,6 @@
       .title-box h1{ font-size:1rem; }
       .title-box p{ font-size:0.85rem; }
 
-      /* Keep buttons on left/right of centered text:
-         reduce min-width of buttons so they fit on small screens,
-         page-info stays centered via flex:1 */
       .btn{
         min-width: 80px;
         padding: 10px 12px;
@@ -189,7 +187,7 @@
 
     /* tablet / small desktop tweaks */
     @media (min-width:601px) and (max-width:920px){
-      header{ min-height:150px; }
+      header{ min-height:140px; }
       .title-box{ max-width:92%; padding:12px 14px; }
       #controls{ max-width:92%; gap:8px; }
       .btn{ min-width:110px; padding:10px 12px; }
@@ -218,13 +216,13 @@
 
     <div class="pdf-header" role="region" aria-label="Encabezado del visor de la carta">
 
-      <!-- Caja de texto - diseño preservado -->
+      <!-- Caja de texto -->
       <div class="title-box" role="group" aria-label="Información de la carta">
         <h1>Menú Restaurante ITARTAROS</h1>
         <p>Disfruta nuestra selección especial de entradas, platos fuertes, bebidas y postres</p>
       </div>
 
-      <!-- Barra de controles - prev (izq) | page-info (centro) | next (der) -->
+      <!-- Barra de controles: prev | indicador centrado | next -->
       <div id="controls" role="toolbar" aria-label="Controles del visor">
         <button id="prev" class="btn btn-prev" aria-label="Página anterior">⬅ Página anterior</button>
 
@@ -235,7 +233,10 @@
     </div>
 
     <!-- VISOR -->
-    <div id="pdf-viewer" role="main" aria-label="Visor del PDF"></div>
+    <div id="pdf-viewer" role="main" aria-label="Visor del PDF">
+      <!-- canvas se genera por JavaScript -->
+      <canvas id="pdf-canvas" aria-label="Canvas del PDF"></canvas>
+    </div>
 
   </div>
 
@@ -243,7 +244,7 @@
     <p>© 2025 ITARTAROS — Todos los derechos reservados</p>
   </footer>
 
-  <!-- pdf.js (CDN) -->
+  <!-- PDF.js (CDN) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.min.js"></script>
   <script>
     if (!window['pdfjsLib']) {
@@ -256,6 +257,8 @@
       // Worker (CDN)
       pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js";
 
+      const canvas = document.getElementById('pdf-canvas');
+      const ctx = canvas.getContext('2d');
       const viewer = document.getElementById("pdf-viewer");
       const pageInfo = document.getElementById("page-info");
       const prevBtn = document.getElementById("prev");
@@ -263,66 +266,115 @@
 
       let pdfDoc = null;
       let currentPage = 1;
+      let rendering = false;
+      let pendingPage = null;
 
-      // habilita/deshabilita botones según página
+      // Limit de escala para no saturar dispositivos (ajusta si quieres)
+      const MAX_RENDER_SCALE = 3.0;
+
+      // Calcula escala base para que la página encaje al contenedor
+      function computeBaseScale(page) {
+        const containerWidth = Math.min(document.querySelector('.container').clientWidth, 960);
+        const viewportUnscaled = page.getViewport({ scale: 1 });
+        const desiredWidth = Math.min(containerWidth * 0.96, 900); // ocupar ~96% del contenedor
+        const baseScale = desiredWidth / viewportUnscaled.width;
+        return baseScale;
+      }
+
+      // Render con alta calidad: multiplicamos por devicePixelRatio y limitamos
+      function renderPage(pageNum) {
+        rendering = true;
+        pdfDoc.getPage(pageNum).then(page => {
+          // base escala responsiva
+          let baseScale = computeBaseScale(page);
+
+          // multiplicador por densidad de pantalla (mejora nitidez en pantallas retina)
+          const dpr = Math.max(window.devicePixelRatio || 1, 1);
+          let targetScale = baseScale * dpr;
+
+          // limitar la escala efectiva
+          if (targetScale > MAX_RENDER_SCALE) targetScale = MAX_RENDER_SCALE;
+
+          const viewport = page.getViewport({ scale: targetScale });
+
+          // Ajustar el tamaño del canvas en píxeles reales
+          canvas.width = Math.round(viewport.width);
+          canvas.height = Math.round(viewport.height);
+
+          // Establecer tamaño CSS para que se ajuste al contenedor visualmente
+          canvas.style.width = Math.min(document.querySelector('.container').clientWidth * 0.96, 900) + 'px';
+          canvas.style.height = (canvas.height * (parseFloat(canvas.style.width) / canvas.width)) + 'px'; // mantiene proporción
+
+          const renderContext = {
+            canvasContext: ctx,
+            viewport: viewport
+          };
+
+          const renderTask = page.render(renderContext);
+          renderTask.promise.then(() => {
+            rendering = false;
+            if (pendingPage !== null) {
+              const next = pendingPage;
+              pendingPage = null;
+              renderPage(next);
+            }
+          }).catch(err => {
+            console.error('Error en renderTask:', err);
+            rendering = false;
+          });
+
+          pageInfo.textContent = `Página ${pageNum} de ${pdfDoc.numPages}`;
+          updateButtons();
+        }).catch(err => {
+          console.error('Error al obtener página:', err);
+          pageInfo.textContent = "Error mostrando la página";
+          rendering = false;
+        });
+      }
+
+      function queueRender(pageNum) {
+        if (rendering) {
+          pendingPage = pageNum;
+        } else {
+          renderPage(pageNum);
+        }
+      }
+
       function updateButtons() {
-        if (!pdfDoc) { prevBtn.disabled = nextBtn.disabled = true; return; }
+        if (!pdfDoc) {
+          prevBtn.disabled = nextBtn.disabled = true;
+          prevBtn.style.opacity = nextBtn.style.opacity = 0.6;
+          return;
+        }
         prevBtn.disabled = currentPage <= 1;
         nextBtn.disabled = currentPage >= pdfDoc.numPages;
         prevBtn.style.opacity = prevBtn.disabled ? 0.6 : 1;
         nextBtn.style.opacity = nextBtn.disabled ? 0.6 : 1;
       }
 
-      // Render de página con escalado responsivo
-      function renderPage(num) {
-        pdfDoc.getPage(num).then(function(page) {
-          const containerWidth = Math.min(document.querySelector('.container').clientWidth, 960);
-          const isMobile = window.innerWidth <= 600;
-          const viewportUnscaled = page.getViewport({ scale: 1 });
-          const desiredWidth = Math.min(containerWidth * (isMobile ? 0.96 : 0.96), 900);
-          const scale = (desiredWidth / viewportUnscaled.width);
-          const viewport = page.getViewport({ scale });
-
-          viewer.innerHTML = "";
-          const canvas = document.createElement("canvas");
-          canvas.setAttribute("aria-label", "Página del menú");
-          const context = canvas.getContext("2d");
-          canvas.height = viewport.height;
-          canvas.width = viewport.width;
-          viewer.appendChild(canvas);
-
-          // Render (devuelve un objeto con .promise que podemos usar si queremos)
-          page.render({ canvasContext: context, viewport: viewport });
-
-          pageInfo.textContent = `Página ${num} de ${pdfDoc.numPages}`;
-          updateButtons();
-        }).catch(err => {
-          console.error("Error renderizando página:", err);
-          pageInfo.textContent = "Error mostrando la página";
-        });
-      }
-
-      prevBtn.addEventListener("click", () => {
+      prevBtn.addEventListener('click', () => {
         if (!pdfDoc || currentPage <= 1) return;
         currentPage--;
-        renderPage(currentPage);
+        queueRender(currentPage);
       });
-      nextBtn.addEventListener("click", () => {
+      nextBtn.addEventListener('click', () => {
         if (!pdfDoc || currentPage >= pdfDoc.numPages) return;
         currentPage++;
-        renderPage(currentPage);
+        queueRender(currentPage);
       });
 
-      // Soporte flechas del teclado (opcional)
+      // Teclas del teclado
       window.addEventListener('keydown', (e) => {
         if (e.key === 'ArrowLeft') prevBtn.click();
         if (e.key === 'ArrowRight') nextBtn.click();
       });
 
-      // Cargar documento
-      pdfjsLib.getDocument(url).promise.then(function(pdf) {
+      // Cargar el documento
+      pdfjsLib.getDocument(url).promise.then(pdf => {
         pdfDoc = pdf;
-        renderPage(currentPage);
+        pageInfo.textContent = `Página ${currentPage} de ${pdfDoc.numPages}`;
+        updateButtons();
+        queueRender(currentPage);
       }).catch(err => {
         console.error("No se pudo cargar el PDF:", err);
         const errEl = document.createElement('div');
@@ -330,18 +382,18 @@
         errEl.style.padding = "18px";
         errEl.style.textAlign = "center";
         errEl.style.color = "#a32a29";
-        document.getElementById('pdf-viewer').appendChild(errEl);
+        viewer.appendChild(errEl);
         pageInfo.textContent = "Carta no disponible";
         updateButtons();
       });
 
-      // Re-render al redimensionar (debounce simple)
+      // Re-render al redimensionar (debounce)
       let rTimer;
       window.addEventListener("resize", () => {
         clearTimeout(rTimer);
         rTimer = setTimeout(() => {
-          if (pdfDoc) renderPage(currentPage);
-        }, 150);
+          if (pdfDoc) queueRender(currentPage);
+        }, 180);
       });
     }
   </script>
